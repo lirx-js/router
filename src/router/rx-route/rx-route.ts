@@ -1,5 +1,5 @@
-import { HTMLElementConstructor } from '@lirx/dom';
 import { fulfilled$$$, IDefaultNotificationsUnion, IObservable, pipe$$, singleN } from '@lirx/core';
+import { HTMLElementConstructor, isCustomElementConstructorWithDetails } from '@lirx/dom';
 import { ICanActivateFunction } from '../route/can-activate/can-activate-function.type';
 import { DEFAULT_CAN_ACTIVATE_FUNCTION } from '../route/can-activate/default-can-activate-function.constant';
 import { convertRoutePathToRegExp } from '../route/functions/convert-route-path-to-reg-exp';
@@ -170,11 +170,11 @@ function createLoadRXRouteComponentFunction(
       return singleN<IOptionalRXRouteComponent>(null);
     }
     : (
-      (typeof component === 'function')
-        ? component as ILoadRXRouteComponentFunction
-        : (): ILoadRXRouteComponentFunctionReturn => {
+      isCustomElementConstructorWithDetails(component)
+        ? (): ILoadRXRouteComponentFunctionReturn => {
           return singleN<IOptionalRXRouteComponent>(component);
         }
+        : component as ILoadRXRouteComponentFunction
     );
 }
 

@@ -1,3 +1,9 @@
 import { IStringOrURL } from '@lirx/dom';
+import { INavigationNavigateOptions } from '../../../navigation/navigation';
 
-export type INavigateTo = IStringOrURL;
+export interface INavigateTo {
+  url: IStringOrURL;
+  transparent?: boolean; // (default: false)
+  options?: INavigationNavigateOptions;
+}
+

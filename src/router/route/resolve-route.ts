@@ -10,6 +10,7 @@ import {
 import { ICanActivateFunctionReturnedValue } from './can-activate/can-activate-function.type';
 import { normalizeRoutePath } from './functions/normalize-route-path';
 import { IRoutesList } from './list/routes-list.type';
+import { navigateToLikeToNavigateTo } from './navigate-to/navigate-to-like-to-navigate-to';
 import { IMatchingResolvedRoute } from './resolved/matching-resolved-route.type';
 import { NOT_MATCHING_RESOLVED_ROUTE } from './resolved/not-matching-resolved-route.constant';
 import { INotMatchingResolvedRoute } from './resolved/not-matching-resolved-route.type';
@@ -57,7 +58,7 @@ export function resolveRoute<GExtra>(
         if (isRouteActivable !== true) {
           return singleN<IRedirectResolvedRoute>({
             state: 'redirect',
-            to: isRouteActivable,
+            to: navigateToLikeToNavigateTo(isRouteActivable),
           });
         } else {
           return pipe$$(loadChildren(), [

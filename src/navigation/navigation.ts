@@ -274,45 +274,50 @@ export function createNavigation(
         noreferrer = true,
       }: INavigationNavigateOptions = options ?? {};
 
-      if (
-        preventSameURLNavigation
-        && (url.href === getLocation().href)
-      ) {
-        return;
-      }
-
-      if (target === '_blank') {
-        const features: string[] = [];
-        if (noopener) {
-          features.push('noopener');
-        }
-        if (noreferrer) {
-          features.push('noreferrer');
-        }
-        const win: Window | null = window.open(url, target, features.join(','));
-        if (win !== null) {
+      switch (target) {
+        case '_blank': {
+          const features: string[] = [];
           if (noopener) {
-            win.opener = null;
+            features.push('noopener');
           }
           if (noreferrer) {
-            (win.location as any) = 'http://domain.com'; // fake domain on purpose
+            features.push('noreferrer');
           }
+          const win: Window | null = window.open(url, target, features.join(','));
+          if (win !== null) {
+            if (noopener) {
+              win.opener = null;
+            }
+            if (noreferrer) {
+              (win.location as any) = 'http://domain.com'; // fake domain on purpose
+            }
+          }
+          break;
         }
-      } else {
-        if (url.href.startsWith(getBaseURI())) {
-          if (replaceState) {
-            history.replaceState(null, '', url);
-          } else {
-            history.pushState(null, '', url);
+        case '_self': {
+          if (
+            !preventSameURLNavigation
+            || (url.href !== getLocation().href)
+          ) {
+            if (url.href.startsWith(getBaseURI())) {
+              if (replaceState) {
+                history.replaceState(null, '', url);
+              } else {
+                history.pushState(null, '', url);
+              }
+            } else {
+              const location: Location = getLocation();
+              if (replaceState) {
+                location.replace(url);
+              } else {
+                location.assign(url);
+              }
+            }
           }
-        } else {
-          const location: Location = getLocation();
-          if (replaceState) {
-            location.replace(url);
-          } else {
-            location.assign(url);
-          }
+          break;
         }
+        default:
+          throw new Error(`Invalid 'target': ${target}`);
       }
     }
   };

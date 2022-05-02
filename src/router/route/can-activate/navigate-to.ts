@@ -1,9 +1,9 @@
 import { singleN } from '@lirx/core';
-import { INavigateTo } from '../navigate-to/navigate-to.type';
+import { INavigateToLike } from '../navigate-to/navigate-to-like-to-navigate-to';
 import { ICanActivateFunction } from './can-activate-function.type';
 
 export function navigateTo(
-  url: INavigateTo,
+  url: INavigateToLike,
 ): ICanActivateFunction {
   const url$ = singleN(url);
   return () => url$;

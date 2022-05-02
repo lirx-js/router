@@ -1,4 +1,4 @@
-import { getBaseURI } from '@lirx/dom';
+import { getBaseURI, stringOrURLToString } from '@lirx/dom';
 import {
   createMulticastSource,
   createNotification,
@@ -65,10 +65,12 @@ export function createRXRouter(
   type IRedirectNotification = INotification<'redirect', INavigateTo>;
   type IUpdateNotifications = ICompleteNotification | IErrorNotification | IRedirectNotification;
 
-  const update = (): IObservable<IUpdateNotifications> => {
+  const update = (
+    path: string = getCurrentPath(),
+  ): IObservable<IUpdateNotifications> => {
     const resolvedRoute$: IObservable<IDefaultNotificationsUnion<IResolvedRXRoute>> = resolveRoutes({
       routes: resolvableRoutes,
-      path: getCurrentPath(),
+      path,
       params: {},
     });
 
@@ -115,22 +117,28 @@ export function createRXRouter(
     }
   };
 
-  const onNavigationChange = (): void => {
+  const onNavigationChange = (
+    path?: string,
+  ): void => {
     if (unsubscribeOfUpdate !== void 0) {
       unsubscribeOfUpdate();
       unsubscribeOfUpdate = void 0;
     }
     $state('updating');
-    unsubscribeOfUpdate = update()((notification: IUpdateNotifications): void => {
+    unsubscribeOfUpdate = update(path)(({ name, value }: IUpdateNotifications): void => {
       queueMicrotask((): void => {
         $state('idle');
         unsubscribeOfUpdate = void 0;
-        switch (notification.name) {
+        switch (name) {
           case 'error':
-            $error(notification.value);
+            $error(value);
             break;
           case 'redirect':
-            NAVIGATION.navigate(notification.value);
+            if (value.transparent === true) { // keep it because we default on false
+              onNavigationChange(normalizeRoutePath(stringOrURLToString(value.url)));
+            } else {
+              NAVIGATION.navigate(value.url, value.options);
+            }
             break;
         }
       });
@@ -147,7 +155,7 @@ export function createRXRouter(
     );
   };
 
-  const unsubscribeOfNavigationChange: IUnsubscribe = NAVIGATION.change$(onNavigationChange);
+  const unsubscribeOfNavigationChange: IUnsubscribe = NAVIGATION.change$(() => onNavigationChange());
   onNavigationChange();
 
   return freeze({
