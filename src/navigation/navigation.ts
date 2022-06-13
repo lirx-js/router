@@ -1,5 +1,7 @@
-import { getBaseURI, IStringOrURL, stringOrURLToURL } from '@lirx/dom';
 import { createEventListener, createMulticastSource, createNotification, freeze, INotification, IObservable } from '@lirx/core';
+import { getBaseURI } from '../misc/get-base-url';
+import { stringOrURLToURL } from '../misc/string-or-url/string-or-url-to-url';
+import { IStringOrURL } from '../misc/string-or-url/string-or-url.type';
 import { getHistory } from './get-history';
 import { getLocation } from './get-location';
 import { patchObjectMethod } from './patch-object-method';

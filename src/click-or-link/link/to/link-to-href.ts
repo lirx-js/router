@@ -1,4 +1,4 @@
-import { stringOrURLToString } from '@lirx/dom';
+import { stringOrURLToString } from '../../../misc/string-or-url/string-or-url-to-string';
 import { ILinkType } from '../link-type.type';
 
 export function linkToHREF(

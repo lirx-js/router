@@ -1,4 +1,4 @@
-import { IStringOrURL } from '@lirx/dom';
+import { IStringOrURL } from '../../../misc/string-or-url/string-or-url.type';
 import { INavigationNavigateOptions } from '../../../navigation/navigation';
 
 export interface INavigateTo {

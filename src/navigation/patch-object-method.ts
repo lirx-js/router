@@ -1,4 +1,3 @@
-import { objectDefineProperty } from '@lirx/dom';
 import { IGenericFunction } from '@lirx/core';
 
 export type IPatchObjectMethodFunction<GObject, GMethodName extends keyof GObject> =
@@ -31,7 +30,7 @@ export function patchObjectMethod<// generics
     return newFunction(this, native, ...args);
   };
 
-  objectDefineProperty(patched, 'name', {
+  Object.defineProperty(patched, 'name', {
     ...Object.getOwnPropertyDescriptor(patched, 'name'),
     value: methodName,
   });

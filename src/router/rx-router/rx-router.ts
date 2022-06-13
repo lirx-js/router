@@ -1,4 +1,3 @@
-import { getBaseURI, stringOrURLToString } from '@lirx/dom';
 import {
   createMulticastSource,
   createNotification,
@@ -16,6 +15,8 @@ import {
   single,
   throwError,
 } from '@lirx/core';
+import { getBaseURI } from '../../misc/get-base-url';
+import { stringOrURLToString } from '../../misc/string-or-url/string-or-url-to-string';
 import { getLocation } from '../../navigation/get-location';
 import { NAVIGATION } from '../../navigation/navigation';
 import {
@@ -145,7 +146,7 @@ export function createRXRouter(
     });
   };
 
-  const getCurrentPath = (): string => {
+  const  getCurrentPath = (): string => {
     const currentPathName: string = getLocation().pathname;
     const baseURIPathName: string = new URL(getBaseURI()).pathname;
     return normalizeRoutePath(

@@ -1,5 +1,5 @@
-import { createHTMLElementModifier, onNodeConnectedToWithImmediateCached, toObservableThrowIfUndefined } from '@lirx/dom';
 import { fromEventTarget, IObservable, IUnsubscribe, noop } from '@lirx/core';
+import { createHTMLElementModifier, onNodeConnectedToWithImmediateCached, toObservableThrowIfUndefined } from '@lirx/dom';
 import { IOptionalClickOrLinkType } from '../shared/optional/optional-click-or-link-type.type';
 import {
   reflectOptionalClickOrLinkTypeOnHTMLAnchorElement,

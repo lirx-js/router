@@ -1,67 +1,62 @@
-import { Component, HTMLAnchorElementWithInputs, IComponentInput, INJECT_CONTENT_TEMPLATE } from '@lirx/dom';
-import { createEventListener } from '@lirx/core';
+import { createComponent, INJECT_CONTENT_TEMPLATE, VirtualCustomElementNode } from '@lirx/dom';
 import { resolveOptionalClickOrLinkTypeOnClick } from '../../click-or-link/shared/optional/resolve-optional-click-or-link-type-on-click';
 import { INavigationNavigateTarget } from '../../navigation/navigation';
 
-/** COMPONENT **/
+/**
+ * COMPONENT: 'v-link'
+ */
 
-type IComponentInputs = [
-  IComponentInput<'replaceState', boolean>,
-];
+interface IVirtualLinkComponentConfig {
+  element: HTMLAnchorElement;
+  inputs: [
+    ['replaceState', boolean],
+  ];
+}
 
-@Component({
+export const VirtualLinkComponent = createComponent<IVirtualLinkComponentConfig>({
   name: 'v-link',
   extends: 'a',
   template: INJECT_CONTENT_TEMPLATE,
-})
-export class AppVirtualLinkComponent extends HTMLAnchorElementWithInputs<IComponentInputs>(['replaceState']) {
-
-  constructor() {
-    super();
-
-    this.replaceState = false;
-
-    createEventListener(this, 'click', (event: MouseEvent) => {
-
+  inputs: [
+    ['replaceState', false],
+  ],
+  init: (node: VirtualCustomElementNode<IVirtualLinkComponentConfig>): void => {
+    node.on$<MouseEvent>('click')((event: MouseEvent) => {
       const getTarget = (): INavigationNavigateTarget => {
-        return (this.target === '_blank')
+        return (node.getProperty('target') === '_blank')
           ? '_blank'
           : '_self';
       };
 
+      const getRel = (): string => {
+        return node.getProperty('rel');
+      };
+
       const getNoOpener = (): boolean => {
-        return (this.rel === '')
-          || this.rel.includes('noopener');
+        const rel: string = getRel();
+        return (rel === '')
+          || rel.includes('noopener');
       };
 
       const getNoReferer = (): boolean => {
-        return (this.rel === '')
-          || this.rel.includes('noreferrer');
+        const rel: string = getRel();
+        return (rel === '')
+          || rel.includes('noreferrer');
       };
 
       resolveOptionalClickOrLinkTypeOnClick({
         clickOrLink: {
           type: 'link',
-          url: new URL(this.href, this.baseURI),
+          url: new URL(node.getProperty('href'), node.getProperty('baseURI')),
           preventDefault: true,
-          replaceState: this.replaceState,
+          replaceState: node.inputs.get('replaceState'),
           target: getTarget(),
           noopener: getNoOpener(),
           noreferrer: getNoReferer(),
         },
         event,
       });
-      // if (
-      //   (event.button === 0)
-      //   && !event.ctrlKey
-      //   && (this.target !== '_blank')
-      //   && ['http:', 'https:'].includes(new URL(this.href, this.baseURI).protocol)
-      // ) {
-      //   event.preventDefault();
-      //   NAVIGATION.navigate(this.href, {
-      //     replaceState: this.replaceState,
-      //   });
-      // }
     });
-  }
-}
+  },
+});
+

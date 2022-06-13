@@ -11,6 +11,7 @@ import {
   singleN,
   timeout,
 } from '@lirx/core';
+import { VirtualDOMNode, virtualDOMNodeQuerySelectorOrThrow } from '@lirx/dom';
 import {
   createNotAbleToLocateRouterOutletError,
   INotAbleToLocateRouterOutletError,
@@ -21,9 +22,9 @@ export const DEFAULT_ROUTER_OUTLET_SELECTOR = `[${DEFAULT_ROUTER_OUTLET_ATTRIBUT
 
 export function locateRouterOutletElement(
   routerOutletSelector: string,
-  parentNode: ParentNode,
-): IObservable<HTMLElement> {
-  return (emit: IObserver<HTMLElement>): IUnsubscribe => {
+  parentNode: VirtualDOMNode,
+): IObservable<VirtualDOMNode> {
+  return (emit: IObserver<VirtualDOMNode>): IUnsubscribe => {
     let running: boolean = true;
 
     const clear = (): void => {
@@ -34,7 +35,7 @@ export function locateRouterOutletElement(
     };
 
     const unsubscribeIdle = idle({ timeout: 500 })((): void => {
-      const routerOutletElement: HTMLElement | null = parentNode.querySelector(routerOutletSelector);
+      const routerOutletElement: VirtualDOMNode | null = virtualDOMNodeQuerySelectorOrThrow(parentNode, routerOutletSelector);
       if (routerOutletElement !== null) {
         emit(routerOutletElement);
         clear();
@@ -47,14 +48,14 @@ export function locateRouterOutletElement(
 
 export function locateRouterOutletElementWithNotifications(
   routerOutletSelector: string,
-  parentNode: ParentNode,
-): IObservable<IDefaultNotificationsUnion<HTMLElement>> {
+  parentNode: VirtualDOMNode,
+): IObservable<IDefaultNotificationsUnion<VirtualDOMNode>> {
   return mergeMapS$$(
     locateRouterOutletElement(
       routerOutletSelector,
       parentNode,
     ),
-    (routerOutletElement: HTMLElement): IObservable<IDefaultNotificationsUnion<HTMLElement>> => {
+    (routerOutletElement: VirtualDOMNode): IObservable<IDefaultNotificationsUnion<VirtualDOMNode>> => {
       return singleN(routerOutletElement);
     },
   );
@@ -62,9 +63,9 @@ export function locateRouterOutletElementWithNotifications(
 
 export function locateRouterOutletElementWithNotificationsAndTimeout(
   routerOutletSelector: string,
-  parentNode: ParentNode,
+  parentNode: VirtualDOMNode,
   duration: number,
-): IObservable<IDefaultNotificationsUnion<HTMLElement>> {
+): IObservable<IDefaultNotificationsUnion<VirtualDOMNode>> {
   return raceWithNotifications([
     locateRouterOutletElementWithNotifications(routerOutletSelector, parentNode),
     timeout<IErrorNotification<INotAbleToLocateRouterOutletError>>(

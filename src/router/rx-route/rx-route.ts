@@ -1,5 +1,5 @@
 import { fulfilled$$$, IDefaultNotificationsUnion, IObservable, pipe$$, singleN } from '@lirx/core';
-import { HTMLElementConstructor, isCustomElementConstructorWithDetails } from '@lirx/dom';
+import { IGenericComponent, VirtualDOMNode } from '@lirx/dom';
 import { ICanActivateFunction } from '../route/can-activate/can-activate-function.type';
 import { DEFAULT_CAN_ACTIVATE_FUNCTION } from '../route/can-activate/default-can-activate-function.constant';
 import { convertRoutePathToRegExp } from '../route/functions/convert-route-path-to-reg-exp';
@@ -43,7 +43,7 @@ export type IRXRoutesListOrLoadRXRoutesListFunction =
 
 // COMPONENT
 
-export type IRXRouteComponent = HTMLElementConstructor;
+export type IRXRouteComponent = IGenericComponent;
 export type IOptionalRXRouteComponent = IRXRouteComponent | null;
 
 export type ILoadRXRouteComponentFunctionReturnedObservableValue = IDefaultNotificationsUnion<IOptionalRXRouteComponent>;
@@ -62,20 +62,20 @@ export type IRXRouteComponentOrLoadRXRouteComponentFunction =
 
 // LOCATE ROUTER OUTLET
 
-export type IRXRouterOutletElement = Element;
+export type IRXRouterOutletElement = VirtualDOMNode;
 
 export type ILocateRXRouterOutletFunctionReturnedObservableValue = IDefaultNotificationsUnion<IRXRouterOutletElement>;
 export type ILocateRXRouterOutletFunctionReturn = IObservable<ILocateRXRouterOutletFunctionReturnedObservableValue>;
 
 export interface ILocateRXRouterOutletFunction {
   (
-    parentElement: Element,
+    parentElement: VirtualDOMNode,
   ): ILocateRXRouterOutletFunctionReturn;
 }
 
 export const DEFAULT_LOCATE_ROUTER_OUTLET: ILocateRXRouterOutletFunction = (
-  parentElement: Element,
-): IObservable<IDefaultNotificationsUnion<HTMLElement>> => {
+  parentElement: VirtualDOMNode,
+): IObservable<IDefaultNotificationsUnion<VirtualDOMNode>> => {
   return locateRouterOutletElementWithNotificationsAndTimeout(
     DEFAULT_ROUTER_OUTLET_SELECTOR,
     parentElement,
@@ -170,7 +170,7 @@ function createLoadRXRouteComponentFunction(
       return singleN<IOptionalRXRouteComponent>(null);
     }
     : (
-      isCustomElementConstructorWithDetails(component)
+      (typeof component === 'object')
         ? (): ILoadRXRouteComponentFunctionReturn => {
           return singleN<IOptionalRXRouteComponent>(component);
         }

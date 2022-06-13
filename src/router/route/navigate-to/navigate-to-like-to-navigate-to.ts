@@ -1,4 +1,4 @@
-import { IStringOrURL } from '@lirx/dom';
+import { IStringOrURL } from '../../../misc/string-or-url/string-or-url.type';
 import { INavigateTo } from './navigate-to.type';
 
 export type INavigateToLike = IStringOrURL | INavigateTo;

@@ -1,5 +1,5 @@
-import { createHTMLElementModifier, toObservable, toObservableThrowIfUndefined } from '@lirx/dom';
 import { IObservable, reactiveFunction } from '@lirx/core';
+import { createHTMLElementModifier, toObservable, toObservableThrowIfUndefined } from '@lirx/dom';
 import { ILinkType } from '../link/link-type.type';
 import { clickOrLinkModifierFunction } from './click-or-link.modifier';
 

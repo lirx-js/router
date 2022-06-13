@@ -1,4 +1,3 @@
-import { nodeAppendChild, nodeRemove } from '@lirx/dom';
 import {
   createMulticastReplayLastSource,
   fulfilled$$$,
@@ -8,6 +7,7 @@ import {
   pipe$$,
   singleN,
 } from '@lirx/core';
+import { IGenericGenericVirtualCustomElementNode, IVirtualDOMNodeOrNull, VirtualCustomElementNode } from '@lirx/dom';
 import { IRouteParams } from '../route/route-params/route-params.type';
 import {
   ILoadRXRouteComponentFunctionReturn,
@@ -29,7 +29,7 @@ export type IInjectedComponentState =
 
 export interface IInjectedComponent {
   state: IInjectedComponentState;
-  element: Element;
+  component: IGenericGenericVirtualCustomElementNode;
 }
 
 export type IOptionalInjectedComponent = IInjectedComponent | null;
@@ -66,23 +66,27 @@ export function injectMatchingResolvedRXRoute(
       if (component === null) {
         injectedComponent = null;
       } else {
-        const routerOutletFirstElementChild: Element | null = routerOutletElement.firstElementChild;
+        const routerOutletFirstElementChild: IVirtualDOMNodeOrNull = routerOutletElement.firstChild;
 
         if (
           forceComponentReload
           || (routerOutletFirstElementChild === null)
-          || (routerOutletFirstElementChild.constructor !== component)
+          || !(
+            (routerOutletFirstElementChild instanceof VirtualCustomElementNode)
+            && (routerOutletFirstElementChild.name === component.name)
+          )
         ) {
-          const element: Element = nodeAppendChild(routerOutletElement, new component());
+          const componentInstance: IGenericGenericVirtualCustomElementNode = component.create();
+          componentInstance.attach(routerOutletElement);
           injectedComponent = {
             state: 'new',
-            element,
+            component: componentInstance,
           };
-          setRouteParams(element, params);
+          setRouteParams(componentInstance, params);
         } else {
           injectedComponent = {
             state: 'recycled',
-            element: routerOutletFirstElementChild,
+            component: routerOutletFirstElementChild,
           };
           setRouteParams(routerOutletFirstElementChild, params);
         }
@@ -120,20 +124,20 @@ export function differInjectedComponents(
   previouslyInjectedComponents: IOptionalInjectedComponentsList,
   injectedComponents: IOptionalInjectedComponentsList,
 ): void {
-  const injectedElements = new Set<Element>();
+  const injectedElements = new Set<IGenericGenericVirtualCustomElementNode>();
   for (let i = 0, l = injectedComponents.length; i < l; i++) {
     const injectedComponent: IOptionalInjectedComponent = injectedComponents[i];
     if (injectedComponent !== null) {
-      injectedElements.add(injectedComponent.element);
+      injectedElements.add(injectedComponent.component);
     }
   }
 
   for (let i = 0, l = previouslyInjectedComponents.length; i < l; i++) {
     const previousInjectedComponent: IOptionalInjectedComponent = previouslyInjectedComponents[i];
     if (previousInjectedComponent !== null) {
-      const element = previousInjectedComponent.element;
+      const element = previousInjectedComponent.component;
       if (!injectedElements.has(element)) {
-        nodeRemove(element);
+        element.detach();
       }
     }
   }
@@ -141,10 +145,10 @@ export function differInjectedComponents(
 
 /* PARAMS */
 
-const COMPONENT_PARAMS = new WeakMap<Element, IMulticastReplayLastSource<IRouteParams>>();
+const COMPONENT_PARAMS = new WeakMap<IGenericGenericVirtualCustomElementNode, IMulticastReplayLastSource<IRouteParams>>();
 
 function getRouteParamsSource(
-  component: Element,
+  component: IGenericGenericVirtualCustomElementNode,
 ): IMulticastReplayLastSource<IRouteParams> {
   let $routeParams$: IMulticastReplayLastSource<IRouteParams> | undefined = COMPONENT_PARAMS.get(component);
   if ($routeParams$ === void 0) {
@@ -155,14 +159,14 @@ function getRouteParamsSource(
 }
 
 function setRouteParams(
-  component: Element,
+  component: IGenericGenericVirtualCustomElementNode,
   params: IRouteParams,
 ): void {
   return getRouteParamsSource(component).emit(params);
 }
 
 export function getRouteParams(
-  component: Element,
+  component: IGenericGenericVirtualCustomElementNode,
 ): IObservable<IRouteParams> {
   return getRouteParamsSource(component).subscribe;
 }
